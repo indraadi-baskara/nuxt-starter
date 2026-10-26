@@ -1,5 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Helvetica", "sans-serif";
+  /* — Vems Garage Industrial Neo-Brutalist — */
+  --font-display-hero: "Space Grotesk";
+  --font-headline-xl: "Space Grotesk";
+  --font-headline-lg: "Space Grotesk";
+  --font-headline-md: "Space Grotesk";
+  --font-headline-sm: "Space Grotesk";
+  --font-label-lg: "Space Grotesk";
+  --font-label-md: "Space Grotesk";
+  --font-label-sm: "Space Grotesk";
+  --font-body-lg: "Hanken Grotesk";
+  --font-body-md: "Hanken Grotesk";
+  --font-body-sm: "Hanken Grotesk";
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* surfaces */
+  --color-background: #f9f9f9;
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f4;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  --color-surface-variant: #e2e2e2;
+  --color-surface-tint: #5f5e5e;
+
+  /* on-surface */
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #444748;
+  --color-on-background: #1a1c1c;
+
+  /* primary (Carbon Black) */
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1c1b1b;
+  --color-on-primary-container: #858383;
+  --color-primary-fixed: #e5e2e1;
+  --color-primary-fixed-dim: #c9c6c5;
+  --color-on-primary-fixed: #1c1b1b;
+  --color-on-primary-fixed-variant: #474646;
+  --color-inverse-primary: #c9c6c5;
+  --color-inverse-surface: #2f3131;
+  --color-inverse-on-surface: #f0f1f1;
+
+  /* secondary (Ember) */
+  --color-secondary: #b02f00;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ff5722;
+  --color-on-secondary-container: #541100;
+  --color-secondary-fixed: #ffdbd1;
+  --color-secondary-fixed-dim: #ffb5a0;
+  --color-on-secondary-fixed: #3b0900;
+  --color-on-secondary-fixed-variant: #862200;
+
+  /* tertiary */
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #1b1c1c;
+  --color-on-tertiary-container: #858383;
+  --color-tertiary-fixed: #e4e2e1;
+  --color-tertiary-fixed-dim: #c8c6c6;
+  --color-on-tertiary-fixed: #1b1c1c;
+  --color-on-tertiary-fixed-variant: #474747;
+
+  /* outline / error */
+  --color-outline: #747878;
+  --color-outline-variant: #c4c7c7;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* spacing — DS tokens */
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 0.75rem;
+  --spacing-margin: 2.5rem;
+  --spacing-margin-mobile: 1rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+
+  /* zero radius — brutist mandate */
+  --radius-DEFAULT: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 }
+
+/* hard cast shadows — zero blur */
+@utility neo-shadow { box-shadow: 4px 4px 0 0 #000000; }
+@utility neo-shadow-lg { box-shadow: 6px 6px 0 0 #000000; }
+@utility neo-shadow-sm { box-shadow: 2px 2px 0 0 #000000; }
+@utility neo-shadow-ember { box-shadow: 4px 4px 0 0 #ff5722; }
+
+/* brutist interaction — translate collapses shadow */
+@utility brutist-interactive {
+  transition: transform 100ms steps(2), box-shadow 100ms steps(2);
+  &:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #000000; }
+  &:active { transform: translate(4px, 4px); box-shadow: 0 0 0 0 #000000; }
+}
+
+/* typography shortcuts (wired to DS) */
+@utility text-display-hero { font-family: "Space Grotesk"; font-size: 72px; line-height: 76px; letter-spacing: -0.04em; font-weight: 700; }
+@utility text-display-hero-mobile { font-family: "Space Grotesk"; font-size: 40px; line-height: 44px; letter-spacing: -0.03em; font-weight: 700; }
+@utility text-headline-xl { font-family: "Space Grotesk"; font-size: 48px; line-height: 52px; letter-spacing: -0.03em; font-weight: 700; }
+@utility text-headline-lg { font-family: "Space Grotesk"; font-size: 32px; line-height: 36px; letter-spacing: -0.02em; font-weight: 700; }
+@utility text-headline-md { font-family: "Space Grotesk"; font-size: 24px; line-height: 28px; letter-spacing: -0.01em; font-weight: 700; }
+@utility text-headline-sm { font-family: "Space Grotesk"; font-size: 18px; line-height: 22px; font-weight: 700; }
+@utility text-label-lg { font-family: "Space Grotesk"; font-size: 14px; line-height: 16px; letter-spacing: 0.06em; font-weight: 700; text-transform: uppercase; }
+@utility text-label-md { font-family: "Space Grotesk"; font-size: 12px; line-height: 14px; letter-spacing: 0.08em; font-weight: 700; text-transform: uppercase; }
+@utility text-label-sm { font-family: "Space Grotesk"; font-size: 10px; line-height: 12px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; }
+@utility text-body-lg { font-family: "Hanken Grotesk"; font-size: 18px; line-height: 26px; letter-spacing: -0.01em; font-weight: 500; }
+@utility text-body-md { font-family: "Hanken Grotesk"; font-size: 15px; line-height: 22px; font-weight: 400; }
+@utility text-body-sm { font-family: "Hanken Grotesk"; font-size: 13px; line-height: 18px; letter-spacing: 0.01em; font-weight: 400; }
+
+/* global zero-radius enforcement */
+* { border-radius: 0 !important; }
+::-webkit-scrollbar { display: none; }
