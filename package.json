@@ -7,12 +7,17 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx server/db/seed.ts",
+    "db:setup": "pnpm db:migrate && pnpm db:seed"
   },
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.2.70",
     "@nuxt/icon": "^2.2.1",
     "@types/better-sqlite3": "^9.6.0",
+    "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
     "nuxt": "4.6.1",
     "tailwindcss": "^4.0.16",
@@ -24,11 +29,16 @@
     "@nuxt/image": "^2.0.0",
     "@tailwindcss/vite": "^4.0.16",
     "better-auth": "^1.7.12",
-    "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",
     "jose": "^6.2.13",
     "pdf-lib": "^1.17.1",
+    "pg": "^8.23.1",
     "reka-ui": "^2.11.0",
     "zod": "^4.6.7"
+  },
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=11"
   }
 }

@@ -1,7 +1,7 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const user = sqliteTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
@@ -15,7 +15,7 @@ export const user = sqliteTable("user", {
   phoneVerified: integer("phoneVerified", { mode: "boolean" }).notNull().default(false),
 }, (t) => [uniqueIndex("user_email_idx").on(t.email)]);
 
-export const session = sqliteTable("session", {
+export const session = pgTable("session", {
   id: text("id").primaryKey(),
   userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   token: text("token").notNull(),
@@ -26,7 +26,7 @@ export const session = sqliteTable("session", {
   userAgent: text("userAgent"),
 }, (t) => [index("session_userId_idx").on(t.userId), uniqueIndex("session_token_idx").on(t.token)]);
 
-export const account = sqliteTable("account", {
+export const account = pgTable("account", {
   id: text("id").primaryKey(),
   userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   accountId: text("accountId").notNull(),
@@ -42,7 +42,7 @@ export const account = sqliteTable("account", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 });
 
-export const verification = sqliteTable("verification", {
+export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
@@ -53,7 +53,7 @@ export const verification = sqliteTable("verification", {
 
 // -- domain
 
-export const product = sqliteTable("product", {
+export const product = pgTable("product", {
   sku: text("sku").primaryKey(),
   title: text("title").notNull(),
   subtitle: text("subtitle"),
@@ -67,7 +67,7 @@ export const product = sqliteTable("product", {
   active: integer("active", { mode: "boolean" }).notNull().default(true),
 }, (t) => [index("product_brand_idx").on(t.brand), index("product_category_idx").on(t.category)]);
 
-export const inventoryLot = sqliteTable("inventory_lot", {
+export const inventoryLot = pgTable("inventory_lot", {
   id: text("id").primaryKey(),
   sku: text("sku").notNull().references(() => product.sku),
   depotId: text("depotId").notNull().default("SMG-01"),
@@ -76,7 +76,7 @@ export const inventoryLot = sqliteTable("inventory_lot", {
   reserved: integer("reserved").notNull().default(0),
 }, (t) => [index("inv_sku_idx").on(t.sku)]);
 
-export const cart = sqliteTable("cart", {
+export const cart = pgTable("cart", {
   id: text("id").primaryKey(),
   userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
   anonId: text("anonId"),
@@ -85,7 +85,7 @@ export const cart = sqliteTable("cart", {
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 }, (t) => [index("cart_userId_idx").on(t.userId), index("cart_anonId_idx").on(t.anonId)]);
 
-export const order = sqliteTable("order", {
+export const order = pgTable("order", {
   id: text("id").primaryKey(), // VG-ORD-YYYY-xxxxx-SMG
   userId: text("userId").notNull().references(() => user.id),
   status: text("status", { enum: ["created", "packing", "shipped", "delivered", "cancelled"] }).notNull().default("created"),
@@ -100,7 +100,7 @@ export const order = sqliteTable("order", {
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 }, (t) => [uniqueIndex("order_idempotency_idx").on(t.idempotencyKey), index("order_userId_idx").on(t.userId)]);
 
-export const orderItem = sqliteTable("order_item", {
+export const orderItem = pgTable("order_item", {
   id: text("id").primaryKey(),
   orderId: text("orderId").notNull().references(() => order.id, { onDelete: "cascade" }),
   sku: text("sku").notNull().references(() => product.sku),
@@ -110,7 +110,7 @@ export const orderItem = sqliteTable("order_item", {
   image: text("image"),
 });
 
-export const bengkelProfile = sqliteTable("bengkel_profile", {
+export const bengkelProfile = pgTable("bengkel_profile", {
   id: text("id").primaryKey(),
   userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
@@ -121,13 +121,13 @@ export const bengkelProfile = sqliteTable("bengkel_profile", {
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 });
 
-export const serial = sqliteTable("serial", {
+export const serial = pgTable("serial", {
   code: text("code").primaryKey(),
   sku: text("sku").notNull().references(() => product.sku),
   verified: integer("verified", { mode: "boolean" }).notNull().default(true),
 });
 
-export const authEvent = sqliteTable("auth_event", {
+export const authEvent = pgTable("auth_event", {
   id: text("id").primaryKey(),
   userId: text("userId").references(() => user.id),
   type: text("type").notNull(),

@@ -1,15 +1,12 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "./schema";
-
-let _db: ReturnType<typeof drizzle> | null = null;
-
+let pool: Pool | null = null;
+let db: ReturnType<typeof drizzle> | null = null;
 export function getDb() {
-  if (_db) return _db;
-  const url = process.env.DATABASE_URL || "./data/app.db";
-  const sqlite = new Database(url);
-  sqlite.pragma("journal_mode = WAL");
-  _db = drizzle(sqlite, { schema });
-  return _db;
+  if (db) return db;
+  pool = new Pool({ connectionString: process.env.DATABASE_URL!, ssl: { rejectUnauthorized: false } });
+  db = drizzle(pool, { schema });
+  return db;
 }
 export type Db = ReturnType<typeof getDb>;
