@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { hashPassword } from "../../lib/auth";
+import { ensureMigrated } from "../../utils/migrate";
 import { getDb } from "../../db";
 import { account, user } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -9,6 +10,7 @@ const Body = z.object({ name: z.string().min(2), email: z.string().email(), pass
 
 export default defineEventHandler(async (event) => {
   try {
+    await ensureMigrated();
     const { name, email, password } = Body.parse(await readBody(event));
     const db = getDb();
   const normalized = email.trim().toLowerCase();

@@ -1,9 +1,11 @@
+import { ensureMigrated } from "../utils/migrate";
 import { getDb } from "../db";
 import { product } from "../db/schema";
 import { like, or, and, eq } from "drizzle-orm";
 import { logRouteError } from "../utils/logError";
 export default defineEventHandler(async (event) => {
   try {
+    await ensureMigrated();
     const q = getQuery(event) as Record<string, string>;
     const db = getDb();
   let rows = await db.select().from(product).where(eq(product.active, true));

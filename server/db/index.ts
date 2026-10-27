@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import { ensureMigrated } from "../utils/migrate";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
@@ -15,6 +16,11 @@ function getDatabaseUrl(): string {
   const env = process.env.NUXT_DATABASE_URL || process.env.DATABASE_URL;
   if (!env) throw new Error("Missing DATABASE_URL (set NUXT_DATABASE_URL or DATABASE_URL env)");
   return env;
+}
+
+export async function getDbAsync() {
+  await ensureMigrated();
+  return getDb();
 }
 
 export function getDb() {
