@@ -50,7 +50,7 @@ export function useCatalog() {
           compareAt: r.compareAt ? formatPrice(Number(r.compareAt)) : undefined,
           badge: r.badge ?? undefined,
           image: r.image ?? undefined,
-          specs: Array.isArray(r.specs) ? r.specs : [],
+          specs: Array.isArray(r.specs) ? r.specs : (typeof r.specs === 'string' ? (()=>{try{const p=JSON.parse(r.specs as any); return Array.isArray(p)?p:[]}catch{return []}})() : []),
         }))
       }
     } catch (e: any) {
