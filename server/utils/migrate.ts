@@ -19,32 +19,41 @@ export async function ensureMigrated(): Promise<void> {
     try {
       // Check if tables exist
       const check = await sql_client`SELECT to_regclass('public.\"user\"') as exists_col`;
-      if ((check as any[])[0]?.exists_col) {
-        console.log("[migrate] tables already present, skip");
-        migrated = true;
-        return;
-      }
-      console.log("[migrate] tables missing — running initial migration");
-      let sql: string | null = null;
-      for (const key of ["assets:migrations", "assets:server", "raw"] as const) {
-        try {
-          const storage = useStorage(key as any);
-          sql = (await storage.getItem("0000_deep_dreaming_celestial.sql")) as string | null;
-          if (sql) break;
-        } catch {}
-      }
-      if (!sql) {
-        const sqlFile = join(process.cwd(), "server/db/migrations/0000_deep_dreaming_celestial.sql");
-        sql = await readFile(sqlFile, "utf8");
-      }
-      const chunks = (sql as string).split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
-      for (const chunk of chunks) {
-        if (!chunk) continue;
-        try { await (sql_client as any).query(chunk, []); } catch (e: any) {
-          if (!/already exists/i.test(e.message)) throw e;
+      const loadSql = async (name: string) => {
+        for (const key of ["assets:migrations", "assets:server", "raw"] as const) {
+          try {
+            const storage = useStorage(key as any);
+            const v = (await storage.getItem(name)) as string | null;
+            if (v) return v;
+          } catch {}
         }
+        return await readFile(join(process.cwd(), `server/db/migrations/${name}`), "utf8");
+      };
+      const runChunks = async (sql: string) => {
+        const chunks = sql.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
+        for (const chunk of chunks) {
+          if (!chunk) continue;
+          try { await (sql_client as any).query(chunk, []); } catch (e: any) {
+            if (!/already exists/i.test(e.message)) throw e;
+          }
+        }
+      };
+      if (!(check as any[])[0]?.exists_col) {
+        console.log("[migrate] tables missing — running initial migration");
+        const sql = await loadSql("0000_deep_dreaming_celestial.sql");
+        await runChunks(sql);
+        console.log("[migrate] 0000 done");
       }
-      console.log("[migrate] done");
+      // incremental: ensure bengkel_pricing exists
+      const check2 = await sql_client`SELECT to_regclass('public.bengkel_pricing') as c`;
+      if (!(check2 as any[])[0]?.c) {
+        console.log("[migrate] bengkel_pricing missing — running 0001");
+        try {
+          const sql1 = await loadSql("0001_daffy_quasimodo.sql");
+          // only run CREATE + FK + indexes for bengkel_pricing, skip ALTER noise idempotently
+          await runChunks(sql1);
+        } catch (e: any) { console.warn("[migrate] 0001 warn:", e.message?.slice(0,200)) }
+      }
       migrated = true;
     } catch (e: any) {
       console.error("[migrate] failed:", e.message?.slice(0, 500));

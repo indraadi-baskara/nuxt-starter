@@ -1,5 +1,5 @@
 import { getDb } from "./index";
-import { product, inventoryLot, serial } from "./schema";
+import { product, inventoryLot, serial, bengkelPricing } from "./schema";
 
 const PRODUCTS = [
   { sku: "VG-BRK-08412", title: "Kampas Rem Depan Bendix General CT", subtitle: "Toyota Innova Reborn 2016-2022 / Fortuner VRZ", brand: "Bendix", category: "Pengereman", price: 465000, badge: "GENUINE", image: "https://picsum.photos/seed/vg-brake-bendix-08412/600/400", specs: [{ label: "Kualitas", value: "OEM Replacement" }, { label: "Lokasi", value: "Rak B-04 Pengapon" }], rak: "Rak B-04 Pengapon", qty: 8 },
@@ -20,7 +20,13 @@ async function main() {
       const code = `VG-2026-${p.sku.slice(-4)}${String(i).padStart(2,"0")}`;
       await db.insert(serial).values({ code, sku: p.sku, verified: true }).onConflictDoNothing();
     }
+    // seed B2B pricing tiers: tier-1 -8%, tier-2 -12%, tier-3 -18%
+    const tiers: Array<[string, number]> = [["tier-1", 0.08], ["tier-2", 0.12], ["tier-3", 0.18]];
+    for (const [tier, disc] of tiers) {
+      const b2b = Math.round(p.price * (1 - disc));
+      await db.insert(bengkelPricing).values({ id: `bp_${p.sku}_${tier}`, sku: p.sku, tier, price: b2b }).onConflictDoNothing();
+    }
   }
-  console.log("seed done", PRODUCTS.length, "products + lots + serials");
+  console.log("seed done", PRODUCTS.length, "products + lots + serials + B2B pricing");
 }
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -1,6 +1,6 @@
 import { ensureMigrated } from "../utils/migrate";
 import { getDb } from "../db";
-import { product } from "../db/schema";
+import { bengkelPricing, bengkelProfile, product } from "../db/schema";
 import { like, or, and, eq } from "drizzle-orm";
 import { logRouteError } from "../utils/logError";
 export default defineEventHandler(async (event) => {
@@ -19,7 +19,26 @@ export default defineEventHandler(async (event) => {
       if (typeof v === 'string') { try { const p = JSON.parse(v); return typeof p === 'string' ? JSON.parse(p) : p } catch { return v } }
       return v
     }
-    const items = (rows as any[]).map((r: any) => ({ ...r, specs: norm(r.specs) }));
+    let items: any[] = (rows as any[]).map((r: any) => ({ ...r, specs: norm(r.specs) }));
+    // B2B tier pricing: if user is bengkel_partner, attach b2bPrice
+    try {
+      const auth: any = (event.context as any).auth;
+      if (auth?.user?.role === 'bengkel_partner') {
+        let tier = 'tier-1';
+        try {
+          const [bp] = await db.select().from(bengkelProfile).where(eq(bengkelProfile.userId, auth.user.id)) as any[];
+          if (bp?.tier) tier = bp.tier;
+        } catch {}
+        try {
+          const pricing = await db.select().from(bengkelPricing).where(eq(bengkelPricing.tier, tier)) as any[];
+          const bySku = new Map(pricing.map((p: any) => [p.sku, p.price]));
+          items = items.map((it: any) => {
+            const bp = bySku.get(it.sku);
+            return bp ? { ...it, b2bPrice: bp, b2bTier: tier, priceOriginal: it.price } : it;
+          });
+        } catch {}
+      }
+    } catch {}
     return { items, total: items.length };
   } catch (err: any) {
     if (err?.statusCode) throw err;

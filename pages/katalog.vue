@@ -28,6 +28,7 @@ watchEffect(() => { if (route.query.q) q.value = String(route.query.q) })
             :compare-at="p.compareAt"
             :badge="p.badge"
             :specs="p.specs"
+            :b2b-tier="p.b2bTier"
             :to="`/produk/${p.id}`"
           />
         </div>

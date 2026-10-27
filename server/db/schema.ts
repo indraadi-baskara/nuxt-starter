@@ -121,6 +121,13 @@ export const bengkelProfile = pgTable("bengkel_profile", {
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 });
 
+export const bengkelPricing = pgTable("bengkel_pricing", {
+  id: text("id").primaryKey(),
+  sku: text("sku").notNull().references(() => product.sku, { onDelete: "cascade" }),
+  tier: text("tier").notNull().default("tier-1"), // tier-1, tier-2, tier-3
+  price: integer("price").notNull(), // B2B price IDR
+}, (t) => [index("bengkel_pricing_sku_tier_idx").on(t.sku, t.tier), index("bengkel_pricing_sku_idx").on(t.sku)]);
+
 export const serial = pgTable("serial", {
   code: text("code").primaryKey(),
   sku: text("sku").notNull().references(() => product.sku),

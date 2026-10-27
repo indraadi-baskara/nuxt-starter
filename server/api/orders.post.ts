@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { order, orderItem, cart, product, inventoryLot } from "../db/schema";
+import { bengkelPricing, bengkelProfile, order, orderItem, cart, product, inventoryLot } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { rateLimit, getClientIp } from "../utils/ratelimit";
@@ -28,13 +28,25 @@ export default defineEventHandler(async (event) => {
     items = rows.map((r) => ({ sku: r.sku, qty: r.qty }));
   }
   if (!items?.length) throw createError({ statusCode: 400, message: "Cart empty" });
+  // resolve B2B tier if partner
+  let b2bTier: string | null = null;
+  let b2bBySku = new Map<string, number>();
+  if (auth.user.role === 'bengkel_partner') {
+    try {
+      const [bp] = await db.select().from(bengkelProfile).where(eq(bengkelProfile.userId, auth.user.id)) as any[];
+      if (bp?.tier) b2bTier = bp.tier; else b2bTier = 'tier-1';
+      const rows = await db.select().from(bengkelPricing).where(eq(bengkelPricing.tier, b2bTier)) as any[];
+      b2bBySku = new Map(rows.map((r: any) => [r.sku, r.price]));
+    } catch {}
+  }
   let subtotal = 0;
   const enriched: Array<{ sku: string; title: string; price: number; qty: number; image?: string }> = [];
   for (const it of items) {
     const [p] = await db.select().from(product).where(eq(product.sku, it.sku));
     if (!p) throw createError({ statusCode: 400, message: `SKU not found: ${it.sku}` });
-    subtotal += p.price * it.qty;
-    enriched.push({ sku: p.sku, title: p.title, price: p.price, qty: it.qty, image: p.image ?? undefined });
+    const unit = b2bBySku.get(p.sku) ?? p.price;
+    subtotal += unit * it.qty;
+    enriched.push({ sku: p.sku, title: p.title, price: unit, qty: it.qty, image: p.image ?? undefined });
   }
   const fee = courierFee[body.courier] ?? 0;
   const total = subtotal + fee;

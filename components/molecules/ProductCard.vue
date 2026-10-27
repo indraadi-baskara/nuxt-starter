@@ -9,6 +9,7 @@ defineProps<{
   image?: string
   specs?: Array<{ label: string; value: string }>
   to?: string
+  b2bTier?: string
 }>()
 </script>
 
@@ -32,6 +33,7 @@ defineProps<{
         <div>
           <div class="text-label-sm text-black/60 line-through" v-if="compareAt">{{ compareAt }}</div>
           <div class="text-headline-sm text-black">{{ price }}</div>
+          <div v-if="b2bTier" class="text-[10px] font-bold uppercase bg-emerald-600 text-white px-1.5 py-0.5 mt-1 inline-block">B2B {{ b2bTier }}</div>
         </div>
         <VgButton variant="ember" size="sm">Tambah</VgButton>
       </div>

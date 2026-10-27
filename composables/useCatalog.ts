@@ -10,6 +10,9 @@ export type Product = {
   badge?: string
   image?: string
   specs: Array<{ label: string; value: string }>
+  b2bPrice?: string
+  b2bTier?: string
+  priceOriginal?: string
 }
 
 const SEED: Product[] = [
@@ -46,11 +49,14 @@ export function useCatalog() {
           subtitle: r.subtitle ?? '',
           brand: r.brand,
           category: r.category,
-          price: typeof r.price === 'string' ? r.price : formatPrice(Number(r.price)),
-          compareAt: r.compareAt ? formatPrice(Number(r.compareAt)) : undefined,
+          price: r.b2bPrice ? formatPrice(Number(r.b2bPrice)) : (typeof r.price === 'string' ? r.price : formatPrice(Number(r.price))),
+          compareAt: r.b2bPrice ? formatPrice(Number(r.priceOriginal ?? r.price)) : (r.compareAt ? formatPrice(Number(r.compareAt)) : undefined),
           badge: r.badge ?? undefined,
           image: r.image ?? undefined,
           specs: Array.isArray(r.specs) ? r.specs : (typeof r.specs === 'string' ? (()=>{try{const p=JSON.parse(r.specs as any); return Array.isArray(p)?p:[]}catch{return []}})() : []),
+          b2bPrice: r.b2bPrice ? formatPrice(Number(r.b2bPrice)) : undefined,
+          b2bTier: r.b2bTier,
+          priceOriginal: r.priceOriginal ? formatPrice(Number(r.priceOriginal)) : undefined,
         }))
       }
     } catch (e: any) {

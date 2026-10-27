@@ -8,6 +8,13 @@
       "when": 1793073627662,
       "tag": "0000_deep_dreaming_celestial",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793080327690,
+      "tag": "0001_daffy_quasimodo",
+      "breakpoints": true
     }
   ]
 }
