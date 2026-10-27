@@ -16,19 +16,19 @@ export function useAuth() {
   }
 
   async function signUp(payload: { name: string; email: string; password: string }) {
-    const res = await $fetch('/api/auth/sign-up/email', { method: 'POST', body: payload, credentials: 'include' } as any)
+    const res = await $fetch('/api/auth/register', { method: 'POST', body: payload, credentials: 'include' } as any)
     await fetchMe()
     return res
   }
 
   async function signIn(payload: { email: string; password: string }) {
-    const res = await $fetch('/api/auth/sign-in/email', { method: 'POST', body: payload, credentials: 'include' } as any)
+    const res = await $fetch('/api/auth/login', { method: 'POST', body: payload, credentials: 'include' } as any)
     await fetchMe()
     return res
   }
 
   async function signOut() {
-    await $fetch('/api/auth/sign-out', { method: 'POST', credentials: 'include' } as any).catch(() => null)
+    await $fetch('/api/auth/logout', { method: 'POST', credentials: 'include' } as any).catch(() => null)
     user.value = null
     initialized.value = true
   }

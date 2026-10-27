@@ -1,17 +1,9 @@
-import { getAuth } from "../lib/auth";
 export default defineEventHandler(async (event) => {
-  // expose session on event.context.auth for downstream handlers
   const url = getRequestURL(event);
   if (!url.pathname.startsWith("/api/")) return;
-  // allow public auth endpoints without session
-  if (url.pathname.startsWith("/api/auth/") && ["POST", "GET"].includes(getMethod(event))) {
-    // still try to attach but don't block
-  }
+  // public auth endpoints still attach if present, but never block
   try {
-    const auth = getAuth();
-    const session = await auth.api.getSession({ headers: event.headers as any });
-    if (session) {
-      (event.context as any).auth = session; // { user, session }
-    }
+    const session = await getUserSession(event) as any;
+    if (session?.user) (event.context as any).auth = { user: session.user, session };
   } catch {}
 });

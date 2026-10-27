@@ -9,14 +9,14 @@ export default defineNuxtConfig({
     plugins: [tailwindcss() as any],
   },
   nitro: {
+    preset: process.env.NETLIFY ? "netlify" : undefined,
     experimental: { openAPI: true },
   },
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL || "./data/app.db",
-    betterAuthSecret: process.env.BETTER_AUTH_SECRET,
-    betterAuthUrl: process.env.BETTER_AUTH_URL || "http://localhost:3002",
+    sessionPassword: process.env.NUXT_SESSION_PASSWORD || process.env.BETTER_AUTH_SECRET,
   },
   experimental: { appManifest: false },
-  modules: ["@nuxt/icon", "@nuxt/image"],
+  modules: ["@nuxt/icon", "@nuxt/image", "nuxt-auth-utils"],
   compatibilityDate: "2024-12-18",
 });
