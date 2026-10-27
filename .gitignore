@@ -26,3 +26,6 @@ logs
 # VSC
 .history
 data/
+
+# Netlify build cache (never commit)
+.netlify
