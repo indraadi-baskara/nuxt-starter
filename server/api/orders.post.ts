@@ -44,6 +44,10 @@ export default defineEventHandler(async (event) => {
   for (const it of items) {
     const [p] = await db.select().from(product).where(eq(product.sku, it.sku));
     if (!p) throw createError({ statusCode: 400, message: `SKU not found: ${it.sku}` });
+    // stock guard: need available >= qty across all lots for SKU (default depot SMG-01)
+    const lots = await db.select().from(inventoryLot).where(eq(inventoryLot.sku, p.sku)) as any[];
+    const available = lots.reduce((s: number, l: any) => s + (l.qty - (l.reserved ?? 0)), 0);
+    if (available < it.qty) throw createError({ statusCode: 409, message: `Stok ${p.sku} tidak cukup — tersedia ${available}, diminta ${it.qty}. Cek depot.` });
     const unit = b2bBySku.get(p.sku) ?? p.price;
     subtotal += unit * it.qty;
     enriched.push({ sku: p.sku, title: p.title, price: unit, qty: it.qty, image: p.image ?? undefined });
@@ -56,6 +60,19 @@ export default defineEventHandler(async (event) => {
   await db.insert(order).values({ id, userId: auth.user.id, status: "created", subtotal, fee, total, courier: body.courier, address: body.customer as any, fakturNo, suratJalanNo: sjNo, idempotencyKey: idempotencyKey ?? null });
   for (const e of enriched) {
     await db.insert(orderItem).values({ id: `oi_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, orderId: id, sku: e.sku, title: e.title, price: e.price, qty: e.qty, image: e.image ?? null });
+  }
+  // reserve inventory: bump reserved on primary lot(s) per SKU (greedy allocate)
+  for (const it of items) {
+    let need = it.qty;
+    const lots = await db.select().from(inventoryLot).where(eq(inventoryLot.sku, it.sku)) as any[];
+    for (const lot of lots.sort((a: any,b: any)=> (b.qty - b.reserved) - (a.qty - a.reserved))) {
+      if (need <= 0) break;
+      const avail = lot.qty - (lot.reserved ?? 0);
+      if (avail <= 0) continue;
+      const take = Math.min(avail, need);
+      await db.update(inventoryLot).set({ reserved: (lot.reserved ?? 0) + take }).where(eq(inventoryLot.id, lot.id));
+      need -= take;
+    }
   }
   // clear cart
   const cartRows = await db.select().from(cart).where(eq(cart.userId, auth.user.id));
