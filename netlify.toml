@@ -1,6 +1,6 @@
 [build]
   command = "pnpm --silent db:migrate || echo \"[migrate] build-time migrate failed — runtime guard will retry\"; pnpm build"
-  publish = "dist"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "22"

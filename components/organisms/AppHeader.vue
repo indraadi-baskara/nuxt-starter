@@ -15,19 +15,24 @@ onMounted(() => auth.fetchMe())
 <template>
   <header class="sticky top-0 z-50 bg-white border-b-2 border-black">
     <AppTopBar />
-    <div class="w-full px-4 lg:px-10 h-20 flex items-center justify-between gap-4 bg-white border-b-2 border-black">
-      <NuxtLink to="/" class="flex items-center bg-[#ff5722] text-white border-2 border-black px-3 py-2 neo-shadow-sm shrink-0">
-        <span class="text-headline-md leading-none mr-2 font-bold tracking-tighter">VG</span>
-        <div class="flex flex-col leading-none">
-          <span class="text-label-lg tracking-tight">VEMS GARAGE</span>
-          <span class="text-label-sm text-white/90">SUKU CADANG SMG</span>
+    <div class="w-full px-4 lg:px-10 h-16 flex items-center justify-between gap-4 bg-white border-b-2 border-black">
+      <NuxtLink to="/" class="flex items-center gap-3 shrink-0">
+        <div class="w-10 h-10 bg-[#ff5722] text-white flex items-center justify-center font-bold text-headline-sm border-2 border-black neo-shadow-sm">VG</div>
+        <div class="flex flex-col leading-none hidden sm:flex">
+          <span class="text-headline-sm uppercase tracking-tight">VEMS GARAGE</span>
+          <span class="text-label-sm text-on-surface-variant">SUKU CADANG ASLI SEMARANG</span>
+        </div>
+        <div class="hidden xl:flex flex-col border-l-2 border-black/10 pl-3 ml-1">
+          <span class="text-label-sm text-secondary font-bold">DEPOT PENGAPON</span>
+          <span class="text-label-sm text-on-surface-variant font-mono">SPEC: CENTRAL JAVA ID</span>
         </div>
       </NuxtLink>
 
-      <div class="hidden md:flex items-center gap-3 flex-1 max-w-xl mx-6">
-        <div class="flex-1 flex border-[3px] border-black">
-          <input v-model="headerSearch" placeholder="Cari SKU, merek, atau kendaraan..." class="flex-1 px-3 py-2 text-body-md outline-none" @keydown.enter="goSearch" />
-          <button class="bg-black text-white px-4 text-label-md border-l-[3px] border-black" @click="goSearch">CARI</button>
+      <div class="hidden lg:flex items-center flex-1 max-w-xl mx-6">
+        <div class="flex-1 flex border-2 border-black neo-shadow-sm">
+          <span class="bg-black text-white px-3 py-2 text-label-md hidden xl:flex items-center shrink-0">SEARCH</span>
+          <input v-model="headerSearch" placeholder="Masukkan Nama Part atau VIN/Nomor Rangka..." class="flex-1 px-3 py-2 text-body-sm outline-none bg-white" @keydown.enter="goSearch" />
+          <button class="bg-black text-white px-4 text-label-md border-l-2 border-black hover:bg-[#ff5722] transition-colors" @click="goSearch">CARI</button>
         </div>
       </div>
 
