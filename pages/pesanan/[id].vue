@@ -55,8 +55,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-4">
-    <CheckoutSteps :current="4" />
+  <div class="-m-6">
+    <BreadcrumbTelemetry :trail="`STATUS PESANAN // ${order?.id ?? route.params.id}`" />
+    <div class="max-w-7xl mx-auto px-4 lg:px-10 py-4 space-y-4">
+      <div class="flex items-center gap-2 text-label-sm uppercase"><span class="bg-black text-white px-2 py-1">NODE: DEPOT PENGAPON DOK D-04</span><span class="bg-white border-2 border-black px-2 py-1">{{ order?.createdAt ? new Date(order.createdAt).toLocaleString("id-ID") : '' }}</span><span class="bg-emerald-600 text-white px-2 py-1">PEMBAYARAN LUNAS — DJP E-NOFA SYNC</span></div>
+      <CheckoutSteps :current="4" />
     <div v-if="loading" class="border-[3px] border-black bg-white p-8 text-center text-body-sm">Memuat pesanan…</div>
     <div v-else-if="err" class="border-2 border-black bg-[#ffdbd1] p-4 text-body-sm">{{ err }} — <NuxtLink to="/pesanan" class="underline">daftar pesanan</NuxtLink>.</div>
     <div v-else-if="!order" class="border-[3px] border-black bg-white p-8 text-center">
@@ -128,6 +131,15 @@ onMounted(async () => {
               </div>
             </div>
           </VgCard>
+          <VgCard class="p-4 bg-black text-white">
+            <h3 class="text-label-sm uppercase flex items-center gap-2"><Icon name="i-lucide-ticket" class="size-4 text-[#ff5722]" /> TIKET SERAH TERIMA FISIK // DISPATCH PASS</h3>
+            <div class="mt-3 bg-white text-black border-2 border-white p-3">
+              <div class="flex justify-between text-label-sm uppercase"><span>KODE PASS</span><span class="font-mono font-bold">VEMS-DP-8842</span></div>
+              <div class="flex justify-between text-label-sm uppercase mt-1"><span>AUTH</span><span class="font-mono">SMG-99120-PENGAPON</span></div>
+              <div class="mt-2 bg-black text-white text-center py-1 font-mono text-label-sm">SCAN GATE DOK D-04 — ESTIMASI SIAP 25 MENIT PUKUL 15:15 WIB</div>
+              <div class="mt-2 flex gap-2"><button class="flex-1 bg-white border-2 border-black py-1 text-label-sm font-bold flex items-center justify-center gap-1"><Icon name="i-lucide-radar" class="size-4" /> LACAK RADAR DISPATCH</button><a href="https://wa.me/6281228000000" target="_blank" class="flex-1 bg-[#25d366] text-white border-2 border-black py-1 text-label-sm font-bold text-center">WA DISPATCHER →</a></div>
+            </div>
+          </VgCard>
           <VgCard class="p-4 bg-[#f9f9f9]">
             <h3 class="text-label-sm uppercase font-bold">Butuh bantuan?</h3>
             <p class="text-body-sm mt-2">Hubungi Depot SMG-01: (024) 7692-8800 — sebutkan nomor pesanan.</p>
@@ -135,6 +147,7 @@ onMounted(async () => {
           </VgCard>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>

@@ -52,8 +52,10 @@ async function placeOrder() {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-4">
-    <CheckoutSteps :current="2" />
+  <div class="-m-6">
+    <BreadcrumbTelemetry trail="CHECKOUT — DATA PENGIRIMAN" />
+    <div class="max-w-7xl mx-auto px-4 lg:px-10 py-4 space-y-4">
+      <CheckoutSteps :current="2" />
     <div v-if="!auth.user.value" class="border-[3px] border-black bg-[#fff4d6] p-4 flex flex-wrap items-center justify-between gap-3">
       <p class="text-body-sm font-bold">Masuk untuk checkout & e-Faktur dikirim ke akun Anda.</p>
       <div class="flex gap-2">
@@ -98,6 +100,7 @@ async function placeOrder() {
         <p class="text-body-sm text-center mt-3 text-[#444748]">COD / Transfer — e-Faktur resmi DJP otomatis terbit.</p>
         <NuxtLink to="/keranjang" class="block mt-3 text-center text-label-sm underline">Kembali ke keranjang</NuxtLink>
       </VgCard>
+    </div>
     </div>
   </div>
 </template>
