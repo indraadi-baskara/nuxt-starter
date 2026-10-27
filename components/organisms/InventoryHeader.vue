@@ -15,11 +15,11 @@
         <div class="flex flex-wrap items-stretch gap-2 shrink-0">
           <div class="bg-surface border-2 border-primary p-2.5 neo-shadow-sm flex flex-col justify-between min-w-[140px]">
             <span class="font-label-sm uppercase text-on-surface-variant">TOTAL PART TERSEDIA</span>
-            <span class="font-headline-md text-primary font-bold">{{ totalSku }} <span class="font-label-md font-normal text-on-surface-variant">SKU</span></span>
+            <span class="font-headline-md text-primary font-bold">{{ displayTotalSku }} <span class="font-label-md font-normal text-on-surface-variant">SKU</span></span>
           </div>
           <div class="bg-primary text-on-primary border-2 border-primary p-2.5 neo-shadow-sm flex flex-col justify-between min-w-[140px]">
             <span class="font-label-sm uppercase text-tertiary-fixed-dim">DEPOT READY RATIO</span>
-            <span class="font-headline-md text-secondary-container font-bold">{{ readyRatio }}</span>
+            <span class="font-headline-md text-secondary-container font-bold">{{ displayReadyRatio }}</span>
           </div>
           <div class="bg-secondary-container text-on-secondary border-2 border-primary p-2.5 neo-shadow-sm flex flex-col justify-between min-w-[130px]">
             <span class="font-label-sm uppercase text-on-secondary-container font-bold">SAME-DAY CUTOFF</span>
@@ -32,10 +32,21 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ title: string; subtitle: string; code?: string; totalSku?: string; readyRatio?: string; cutoff?: string }>(), {
+const props = withDefaults(defineProps<{ title: string; subtitle: string; code?: string; totalSku?: string; readyRatio?: string; cutoff?: string; live?: boolean }>(), {
   code: "PLP-GEN-01",
   totalSku: "1,482",
   readyRatio: "94.2%",
   cutoff: "16:30 WIB",
+  live: false,
 })
+
+const { stats, totalSkuFormatted, readyRatioFormatted } = props.live ? useInventoryStats() : { stats: ref(null) as any, totalSkuFormatted: computed(() => props.totalSku), readyRatioFormatted: computed(() => props.readyRatio) }
+
+// when live, fetch immediately on SSR as well
+if (props.live && import.meta.server) {
+  try { await $fetch("/api/inventory/stats").then((r: any) => { (stats as any).value = r }).catch(() => {}) } catch {}
+}
+
+const displayTotalSku = computed(() => (props.live ? totalSkuFormatted.value : props.totalSku))
+const displayReadyRatio = computed(() => (props.live ? readyRatioFormatted.value : props.readyRatio))
 </script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   sku: string
   title: string
   subtitle?: string
@@ -11,6 +11,7 @@ defineProps<{
   to?: string
   b2bTier?: string
 }>()
+const emit = defineEmits<{ add: [payload: { sku: string; title: string; price: string; image?: string }] }>()
 </script>
 
 <template>
@@ -35,7 +36,7 @@ defineProps<{
           <div class="text-headline-sm text-black">{{ price }}</div>
           <div v-if="b2bTier" class="text-[10px] font-bold uppercase bg-emerald-600 text-white px-1.5 py-0.5 mt-1 inline-block">B2B {{ b2bTier }}</div>
         </div>
-        <VgButton variant="ember" size="sm">Tambah</VgButton>
+        <VgButton variant="ember" size="sm" @click.stop.prevent="emit('add', { sku: props.sku, title: props.title, price: props.price, image: props.image })">Tambah</VgButton>
       </div>
     </div>
   </VgCard>

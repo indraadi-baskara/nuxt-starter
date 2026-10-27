@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { q, brand, category, filtered, brands, categories } = useCatalog()
+const cart = useCart()
 definePageMeta({ layout: "default" })
 useHead({ title: "Katalog Suku Cadang — Vems Garage" })
 const route = useRoute()
@@ -19,8 +20,7 @@ function onGarasiChange(v: any) {
       title="KATALOG SUKU CADANG SEMARANG DEPOT"
       subtitle="Inventori bersertifikasi ATPM Genuine Parts, Brembo High-Carbon, dan komponen heavy-duty siap kirim same-day area Semarang Raya & Jawa Tengah."
       code="PLP-BRK-CHASSIS-04"
-      total-sku="1,482"
-      ready-ratio="94.2%"
+      live
       cutoff="16:30 WIB"
     />
     <GarasiSaya @change="onGarasiChange" />
@@ -60,6 +60,7 @@ function onGarasiChange(v: any) {
               :specs="p.specs"
               :b2b-tier="p.b2bTier"
               :to="`/produk/${p.id}`"
+              @add="cart.add($event.sku, $event.title, $event.price, $event.image)"
             />
           </div>
           <div v-else class="border-[3px] border-black bg-white p-8 text-center">

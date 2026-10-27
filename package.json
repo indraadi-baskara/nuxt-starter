@@ -11,11 +11,15 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx server/db/seed.ts",
-    "db:setup": "pnpm db:migrate && pnpm db:seed"
+    "db:setup": "pnpm db:migrate && pnpm db:seed",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "BASE_URL=http://localhost:3000 node scripts/smoke.mjs",
+    "test:smoke": "pnpm build && (pnpm dev --port 3000 --host 127.0.0.1 &); sleep 8; node scripts/smoke.mjs; kill %1 || true"
   },
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.2.70",
     "@nuxt/icon": "^2.2.1",
+    "@playwright/test": "^1.64.1",
     "@types/better-sqlite3": "^9.6.0",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
