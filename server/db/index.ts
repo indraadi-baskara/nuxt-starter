@@ -19,7 +19,15 @@ function getDatabaseUrl(): string {
 
 export function getDb() {
   if (db) return db;
-  pool = new Pool({ connectionString: getDatabaseUrl(), ssl: { rejectUnauthorized: false } });
+  const url = getDatabaseUrl();
+  pool = new Pool({
+    connectionString: url,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 8000,
+    idleTimeoutMillis: 30000,
+    max: 5,
+  });
+  pool.on("error", (err) => console.error("[db] pool error", (err as any)?.message ?? err));
   db = drizzle(pool, { schema });
   return db;
 }

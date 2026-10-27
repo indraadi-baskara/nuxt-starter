@@ -7,8 +7,8 @@ export const user = pgTable("user", {
   email: text("email").notNull(),
   emailVerified: integer("emailVerified", { mode: "boolean" }).notNull().default(false),
   image: text("image"),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
   // custom
   role: text("role", { enum: ["customer", "bengkel_partner", "gudang_picker", "admin"] }).notNull().default("customer"),
   phone: text("phone"),
@@ -20,8 +20,8 @@ export const session = pgTable("session", {
   userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   token: text("token").notNull(),
   expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
 }, (t) => [index("session_userId_idx").on(t.userId), uniqueIndex("session_token_idx").on(t.token)]);
@@ -38,8 +38,8 @@ export const account = pgTable("account", {
   scope: text("scope"),
   idToken: text("idToken"),
   password: text("password"), // hashed for credential
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 });
 
 export const verification = pgTable("verification", {
@@ -47,8 +47,8 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 });
 
 // -- domain
@@ -82,7 +82,7 @@ export const cart = pgTable("cart", {
   anonId: text("anonId"),
   sku: text("sku").notNull().references(() => product.sku),
   qty: integer("qty").notNull().default(1),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 }, (t) => [index("cart_userId_idx").on(t.userId), index("cart_anonId_idx").on(t.anonId)]);
 
 export const order = pgTable("order", {
@@ -97,7 +97,7 @@ export const order = pgTable("order", {
   fakturNo: text("fakturNo"),
   suratJalanNo: text("suratJalanNo"),
   idempotencyKey: text("idempotencyKey"),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 }, (t) => [uniqueIndex("order_idempotency_idx").on(t.idempotencyKey), index("order_userId_idx").on(t.userId)]);
 
 export const orderItem = pgTable("order_item", {
@@ -118,7 +118,7 @@ export const bengkelProfile = pgTable("bengkel_profile", {
   status: text("status", { enum: ["pending", "verified", "rejected"] }).notNull().default("pending"),
   tier: text("tier").notNull().default("tier-1"),
   depotId: text("depotId").notNull().default("SMG-01"),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 });
 
 export const serial = pgTable("serial", {
@@ -133,5 +133,5 @@ export const authEvent = pgTable("auth_event", {
   type: text("type").notNull(),
   ip: text("ip"),
   meta: text("meta", { mode: "json" }),
-  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
 }, (t) => [index("auth_event_userId_idx").on(t.userId)]);
