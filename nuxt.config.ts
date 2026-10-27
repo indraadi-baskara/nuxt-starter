@@ -11,10 +11,14 @@ export default defineNuxtConfig({
   nitro: {
     preset: process.env.NETLIFY ? "netlify" : undefined,
     experimental: { openAPI: true },
+    serverAssets: [{ baseName: "migrations", dir: "server/db/migrations" }],
   },
   runtimeConfig: {
-    databaseUrl: process.env.DATABASE_URL || "./data/app.db",
-    sessionPassword: process.env.NUXT_SESSION_PASSWORD || process.env.BETTER_AUTH_SECRET,
+    // Secrets are NEVER inlined — read from NUXT_* env at runtime via applyEnv.
+    // Set via Netlify env vars: NUXT_DATABASE_URL, NUXT_SESSION_PASSWORD
+    // (or bare DATABASE_URL / NUXT_SESSION_PASSWORD — both work, see server code)
+    databaseUrl: "",
+    sessionPassword: "",
   },
   experimental: { appManifest: false },
   modules: ["@nuxt/icon", "@nuxt/image", "nuxt-auth-utils"],
