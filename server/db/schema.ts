@@ -1,18 +1,18 @@
-import { pgTable, text, integer, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
-  emailVerified: integer("emailVerified", { mode: "boolean" }).notNull().default(false),
+  emailVerified: boolean("emailVerified").notNull().default(false),
   image: text("image"),
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`extract(epoch from now())::int`),
   // custom
   role: text("role", { enum: ["customer", "bengkel_partner", "gudang_picker", "admin"] }).notNull().default("customer"),
   phone: text("phone"),
-  phoneVerified: integer("phoneVerified", { mode: "boolean" }).notNull().default(false),
+  phoneVerified: boolean("phoneVerified").notNull().default(false),
 }, (t) => [uniqueIndex("user_email_idx").on(t.email)]);
 
 export const session = pgTable("session", {
@@ -64,7 +64,7 @@ export const product = pgTable("product", {
   badge: text("badge"),
   image: text("image"),
   specs: text("specs", { mode: "json" }).$type<Array<{ label: string; value: string }>>(),
-  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  active: boolean("active").notNull().default(true),
 }, (t) => [index("product_brand_idx").on(t.brand), index("product_category_idx").on(t.category)]);
 
 export const inventoryLot = pgTable("inventory_lot", {
@@ -124,7 +124,7 @@ export const bengkelProfile = pgTable("bengkel_profile", {
 export const serial = pgTable("serial", {
   code: text("code").primaryKey(),
   sku: text("sku").notNull().references(() => product.sku),
-  verified: integer("verified", { mode: "boolean" }).notNull().default(true),
+  verified: boolean("verified").notNull().default(true),
 });
 
 export const authEvent = pgTable("auth_event", {

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@casl/ability": "^7.0.2",
+    "@neondatabase/serverless": "^1.2.0",
     "@nuxt/image": "^2.0.0",
     "@tailwindcss/vite": "^4.0.16",
     "bcryptjs": "^3.0.3",

@@ -88,13 +88,13 @@ CREATE TABLE "product" (
 	"badge" text,
 	"image" text,
 	"specs" text,
-	"active" integer DEFAULT true NOT NULL
+	"active" boolean DEFAULT true NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "serial" (
 	"code" text PRIMARY KEY NOT NULL,
 	"sku" text NOT NULL,
-	"verified" integer DEFAULT true NOT NULL
+	"verified" boolean DEFAULT true NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -112,13 +112,13 @@ CREATE TABLE "user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
-	"emailVerified" integer DEFAULT false NOT NULL,
+	"emailVerified" boolean DEFAULT false NOT NULL,
 	"image" text,
 	"createdAt" integer DEFAULT extract(epoch from now())::int NOT NULL,
 	"updatedAt" integer DEFAULT extract(epoch from now())::int NOT NULL,
 	"role" text DEFAULT 'customer' NOT NULL,
 	"phone" text,
-	"phoneVerified" integer DEFAULT false NOT NULL
+	"phoneVerified" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "verification" (

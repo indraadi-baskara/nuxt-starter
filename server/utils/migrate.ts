@@ -14,13 +14,12 @@ export async function ensureMigrated(): Promise<void> {
       console.warn("[migrate] skip: no DATABASE_URL");
       return;
     }
-    // Use drizzle-kit migrate via direct SQL so we don't shell out
-    // Minimal: check if expected table exists; if not, run the SQL migration file(s)
-    const { Pool } = await import("pg");
-    const pool = new Pool({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 8000 });
+    const { neon } = await import("@neondatabase/serverless");
+    const sql_client = neon(url);
     try {
-      const check = await pool.query("SELECT to_regclass('public.\"user\"') as exists_col");
-      if (check.rows[0]?.exists_col) {
+      // Check if tables exist
+      const check = await sql_client`SELECT to_regclass('public.\"user\"') as exists_col`;
+      if ((check as any[])[0]?.exists_col) {
         console.log("[migrate] tables already present, skip");
         migrated = true;
         return;
@@ -38,12 +37,10 @@ export async function ensureMigrated(): Promise<void> {
         const sqlFile = join(process.cwd(), "server/db/migrations/0000_deep_dreaming_celestial.sql");
         sql = await readFile(sqlFile, "utf8");
       }
-      // Split on drizzle breakpoints and exec each statement batch
-      const chunks = sql.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
+      const chunks = (sql as string).split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
       for (const chunk of chunks) {
         if (!chunk) continue;
-        try { await pool.query(chunk); } catch (e: any) {
-          // Ignore already-exists errors (idempotent on redeploy)
+        try { await (sql_client as any).query(chunk, []); } catch (e: any) {
           if (!/already exists/i.test(e.message)) throw e;
         }
       }
@@ -52,8 +49,6 @@ export async function ensureMigrated(): Promise<void> {
     } catch (e: any) {
       console.error("[migrate] failed:", e.message?.slice(0, 500));
       throw e;
-    } finally {
-      await pool.end().catch(() => {});
     }
   })();
   return migrating;
