@@ -12,5 +12,8 @@ export default defineEventHandler(async (event) => {
   if (!o) throw createError({ statusCode: 404, message: "Order not found" });
   if (o.userId !== auth.user.id) throw createError({ statusCode: 403, message: "Forbidden" });
   const items = await db.select().from(orderItem).where(eq(orderItem.orderId, id));
-  return { ...o, items };
+  // Neon HTTP returns json-mode text columns as strings — parse for the client
+  let address: any = (o as any).address
+  if (typeof address === 'string') { try { address = JSON.parse(address) } catch {} }
+  return { ...o, address, items };
 });

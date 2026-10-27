@@ -23,18 +23,26 @@ onMounted(async () => {
     // prefer server truth
     const data: any = await $fetch(`/api/orders/${encodeURIComponent(id)}`, { credentials: 'include' } as any).catch(() => null)
     if (data?.id) {
-      // normalize server shape vs legacy
+      // Neon HTTP driver returns text/json columns as raw strings — normalize
+      const parseAddr = (v: any) => {
+        if (!v) return {} as any
+        if (typeof v === 'string') { try { return JSON.parse(v) } catch { return {} as any } }
+        return v
+      }
+      const customer = parseAddr(data.address)
       order.value = {
         id: data.id,
         createdAt: data.createdAt,
         items: data.items ?? [],
-        customer: (data.address ?? {}) as any,
+        customer,
         subtotal: data.subtotal, fee: data.fee, total: data.total,
         fakturNo: data.fakturNo, suratJalanNo: data.suratJalanNo,
         courier: data.courier,
       }
       // address object stores courier separately on order; keep label consistent
-      order.value.customer.courier = data.courier
+      if (order.value.customer && typeof order.value.customer === 'object') {
+        order.value.customer.courier = data.courier
+      }
     } else {
       // fallback legacy localStorage
       const api = useOrder()
