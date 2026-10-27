@@ -132,6 +132,8 @@ export const serial = pgTable("serial", {
   code: text("code").primaryKey(),
   sku: text("sku").notNull().references(() => product.sku),
   verified: boolean("verified").notNull().default(true),
+  orderId: text("orderId").references(() => order.id),
+  assignedAt: integer("assignedAt", { mode: "timestamp" }),
 });
 
 export const authEvent = pgTable("auth_event", {

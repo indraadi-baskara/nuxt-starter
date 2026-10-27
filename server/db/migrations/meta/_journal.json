@@ -15,6 +15,13 @@
       "when": 1793080327690,
       "tag": "0001_daffy_quasimodo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793081563335,
+      "tag": "0002_optimal_clint_barton",
+      "breakpoints": true
     }
   ]
 }

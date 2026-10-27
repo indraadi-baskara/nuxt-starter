@@ -53,6 +53,15 @@ export async function ensureMigrated(): Promise<void> {
           await runChunks(sql1);
         } catch (e: any) { console.warn("[migrate] 0001 warn:", e.message?.slice(0,200)) }
       }
+      // incremental: serial orderId columns
+      try {
+        const cols = await sql_client`SELECT column_name FROM information_schema.columns WHERE table_name='serial' AND column_name='orderId'` as any[];
+        if (!cols.length) {
+          console.log("[migrate] serial.orderId missing — running 0002");
+          const sql2 = await loadSql("0002_optimal_clint_barton.sql");
+          await runChunks(sql2);
+        }
+      } catch (e: any) { console.warn("[migrate] 0002 warn:", e.message?.slice(0,200)) }
       // seed B2B pricing if empty
       try {
         const cnt = await sql_client`SELECT count(*)::int as n FROM bengkel_pricing` as any[];
