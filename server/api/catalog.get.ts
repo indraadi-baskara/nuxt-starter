@@ -13,7 +13,14 @@ export default defineEventHandler(async (event) => {
   if (term) rows = rows.filter((r) => [r.sku, r.title, r.subtitle ?? "", r.brand].join(" ").toLowerCase().includes(term));
     if (q.brand) rows = rows.filter((r) => r.brand === q.brand);
     if (q.category) rows = rows.filter((r) => r.category === q.category);
-    return { items: rows, total: rows.length };
+    // Neon HTTP returns json-mode columns as strings — normalize specs
+    const norm = (v: any) => {
+      if (!v) return v
+      if (typeof v === 'string') { try { const p = JSON.parse(v); return typeof p === 'string' ? JSON.parse(p) : p } catch { return v } }
+      return v
+    }
+    const items = (rows as any[]).map((r: any) => ({ ...r, specs: norm(r.specs) }));
+    return { items, total: items.length };
   } catch (err: any) {
     if (err?.statusCode) throw err;
     logRouteError("catalog", err);
