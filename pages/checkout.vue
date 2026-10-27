@@ -87,9 +87,10 @@ async function placeOrder() {
         </VgCard>
       </div>
       <VgCard class="p-4 h-fit">
+        <div v-if="auth.user.value?.role === 'bengkel_partner'" class="border-2 border-emerald-600 bg-emerald-50 p-3 mb-3 text-body-sm flex items-center gap-2"><Icon name="i-lucide-badge-check" class="size-4 text-emerald-600" /><span class="font-bold">Harga B2B aktif</span> — diskon tier otomatis di subtotal.</div>
         <h2 class="text-label-lg text-black border-b-2 border-black pb-2">Ringkasan Pembayaran</h2>
         <div class="mt-4 space-y-2 text-body-sm">
-          <div class="flex justify-between"><span>Subtotal</span><span class="font-bold">{{ cart.fmt(cart.subtotal.value) }}</span></div>
+          <div class="flex justify-between"><span>Subtotal{{ auth.user.value?.role === 'bengkel_partner' ? ' (B2B)' : '' }}</span><span class="font-bold">{{ cart.fmt(cart.subtotal.value) }}</span></div>
           <div class="flex justify-between"><span>Ongkir ({{ form.courier }})</span><span class="font-bold">{{ cart.fmt(fee) }}</span></div>
           <div class="flex justify-between border-t-2 border-black pt-2 text-body-md font-bold"><span>Total Bayar</span><span>{{ cart.fmt(grandTotal) }}</span></div>
         </div>

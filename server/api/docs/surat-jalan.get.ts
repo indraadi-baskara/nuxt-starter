@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
   const db = getDb();
   const [o] = await db.select().from(order).where(eq(order.id, orderId));
   if (!o) throw createError({ statusCode: 404, message: "Order not found" });
-  if (o.userId !== auth.user.id) throw createError({ statusCode: 403, message: "Forbidden" });
+  const isStaff2 = ['admin','gudang_picker'].includes(auth.user.role)
+  if (o.userId !== auth.user.id && !isStaff2) throw createError({ statusCode: 403, message: "Forbidden" });
   const pdf = await makeSuratJalanPdf({ sjNo: o.suratJalanNo!, orderId: o.id, customer: o.address as any, courier: o.courier });
   setHeader(event, "Content-Type", "application/pdf");
   setHeader(event, "Content-Disposition", `attachment; filename="surat-jalan-${orderId}.pdf"`);

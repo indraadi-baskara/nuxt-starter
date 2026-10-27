@@ -24,11 +24,13 @@ export const useCart = () => {
       if (rows.length) {
         items.value = rows.map((r: any) => {
           const p = r.product
+          // use B2B price if server enriched it for bengkel_partner
+          const unit = p?.b2bPrice ?? p?.price
           return {
             id: r.id,
             sku: r.sku,
             title: p?.title ?? r.sku,
-            price: p ? formatPrice(Number(p.price)) : r.price ?? 'Rp 0',
+            price: unit != null ? formatPrice(Number(unit)) : r.price ?? 'Rp 0',
             qty: r.qty,
             image: p?.image,
           }
