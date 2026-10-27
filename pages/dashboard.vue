@@ -6,11 +6,15 @@ const me = ref<any>(null)
 const ordersCount = ref<number | null>(null)
 const adminOrders = ref<any[]>([])
 const adminBengkel = ref<any[]>([])
-const adminTab = ref<'orders'|'bengkel'>('orders')
+const adminTab = ref<'orders'|'bengkel'|'pricing'>('orders')
 const orderFilter = ref<string>('')
+const pricingTier = ref<string>('tier-1')
+const pricing = ref<any[]>([])
+const pricingBusy = ref(false)
 const busy = ref<string | null>(null)
 const role = computed(() => auth.user.value?.role ?? 'customer')
 const isStaff = computed(() => ['admin','gudang_picker'].includes(role.value))
+const isAdmin = computed(() => role.value === 'admin')
 function fmt(n: number) { return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n ?? 0) }
 async function load() {
   await auth.fetchMe()
@@ -22,6 +26,14 @@ async function load() {
 async function loadAdmin() {
   try { const r: any = await $fetch('/api/admin/orders', { credentials: 'include' as any, query: orderFilter.value ? { status: orderFilter.value } : {} }); adminOrders.value = r?.items ?? [] } catch {}
   try { const r: any = await $fetch('/api/admin/bengkel', { credentials: 'include' as any, query: { status: 'pending' } }); adminBengkel.value = r?.items ?? [] } catch {}
+  if (isAdmin.value) await loadPricing()
+}
+async function loadPricing() {
+  try { const r: any = await $fetch('/api/admin/pricing', { credentials: 'include' as any, query: { tier: pricingTier.value } }); pricing.value = r?.items ?? [] } catch {}
+}
+async function savePrice(sku: string, price: number) {
+  pricingBusy.value = true
+  try { await $fetch('/api/admin/pricing', { method: 'PUT', body: { sku, tier: pricingTier.value, price }, credentials: 'include' as any }); await loadPricing() } catch (e: any) { alert(e?.data?.message || e?.message || 'Gagal') } finally { pricingBusy.value = false }
 }
 async function updateOrderStatus(id: string, status: string) {
   busy.value = id; try { await $fetch(`/api/admin/orders/${encodeURIComponent(id)}/status`, { method: 'PATCH', body: { status }, credentials: 'include' as any }); await loadAdmin() } catch (e: any) { alert(e?.data?.message || e?.message || 'Gagal') } finally { busy.value = null }
@@ -30,6 +42,7 @@ async function verifyBengkel(id: string, action: 'approve'|'reject') {
   busy.value = id; try { await $fetch(`/api/bengkel/${encodeURIComponent(id)}/verify`, { method: 'POST', body: { action }, credentials: 'include' as any }); await loadAdmin() } catch (e: any) { alert(e?.data?.message || e?.message || 'Gagal') } finally { busy.value = null }
 }
 watch(orderFilter, loadAdmin)
+watch(pricingTier, loadPricing)
 async function logout() { await auth.signOut(); navigateTo('/') }
 onMounted(load)
 </script>
@@ -59,6 +72,7 @@ onMounted(load)
             <div class="flex gap-2">
               <button class="border-2 border-black px-3 py-1 text-label-sm font-bold" :class="adminTab==='orders'?'bg-black text-white':'bg-white'" @click="adminTab='orders'">Pesanan ({{ adminOrders.length }})</button>
               <button class="border-2 border-black px-3 py-1 text-label-sm font-bold" :class="adminTab==='bengkel'?'bg-black text-white':'bg-white'" @click="adminTab='bengkel'">Verifikasi ({{ adminBengkel.length }})</button>
+              <button v-if="isAdmin" class="border-2 border-black px-3 py-1 text-label-sm font-bold" :class="adminTab==='pricing'?'bg-black text-white':'bg-white'" @click="adminTab='pricing'">B2B Harga</button>
             </div>
           </div>
           <div v-if="adminTab==='orders'" class="mt-4 space-y-3">
@@ -74,11 +88,23 @@ onMounted(load)
               </div>
             </div>
           </div>
-          <div v-else class="mt-4 space-y-3">
+          <div v-else-if="adminTab==='bengkel'" class="mt-4 space-y-3">
             <div v-if="!adminBengkel.length" class="text-body-sm text-[#444748] p-3 border-2 border-dashed border-black">Tidak ada pengajuan pending.</div>
             <div v-for="b in adminBengkel" :key="b.id" class="border-2 border-black p-3 flex items-center gap-3">
               <div class="flex-1"><div class="text-body-sm font-bold">{{ b.name }}</div><div class="font-mono text-xs">NIB {{ b.nib }} • {{ b.tier }} • {{ b.depotId }}</div></div>
               <div class="flex gap-2"><VgButton size="sm" variant="ember" :disabled="busy===b.id" @click="verifyBengkel(b.id,'approve')">Approve</VgButton><VgButton size="sm" :disabled="busy===b.id" @click="verifyBengkel(b.id,'reject')">Reject</VgButton></div>
+            </div>
+          </div>
+          <div v-else class="mt-4 space-y-3">
+            <div class="flex gap-2 items-center">
+              <select v-model="pricingTier" class="border-2 border-black px-3 py-2 text-body-sm"><option value="tier-1">Tier-1 (-8%)</option><option value="tier-2">Tier-2 (-12%)</option><option value="tier-3">Tier-3 (-18%)</option></select>
+              <VgButton size="sm" @click="loadPricing">Refresh</VgButton>
+              <span v-if="pricingBusy" class="text-body-sm">Menyimpan…</span>
+            </div>
+            <div v-if="!pricing.length" class="text-body-sm text-[#444748] p-3 border-2 border-dashed border-black">Belum ada harga B2B untuk tier ini.</div>
+            <div v-for="p in pricing" :key="p.sku + p.tier" class="border-2 border-black p-3 flex flex-wrap items-center gap-3">
+              <div class="flex-1 min-w-[200px]"><div class="font-mono text-xs">{{ p.sku }} — {{ p.product?.title ?? p.sku }}</div><div class="text-body-sm">Retail {{ fmt(p.product?.price ?? 0) }} → B2B <span class="font-bold">{{ fmt(p.price) }}</span></div></div>
+              <div class="flex gap-2 items-center"><input :id="'price-'+p.sku" type="number" :value="p.price" class="border-2 border-black px-2 py-1 w-28 text-body-sm font-mono" @change="(e:any)=> savePrice(p.sku, Number((e.target as HTMLInputElement).value))" /><span class="text-xs">IDR</span></div>
             </div>
           </div>
         </VgCard>
