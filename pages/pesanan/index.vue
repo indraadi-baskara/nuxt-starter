@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" })
+definePageMeta({ layout: "account", middleware: "auth" })
 useHead({ title: "Pesanan Saya — Vems Garage" })
 const auth = useAuth()
 const orders = ref<any[]>([])

@@ -4,6 +4,9 @@ const cartCount = computed(() => cart.count.value)
 const auth = useAuth()
 const showMobileNav = ref(false)
 const headerSearch = ref("")
+const role = computed(() => auth.user.value?.role ?? null)
+const isStaff = computed(() => role.value && ['admin', 'gudang_picker'].includes(role.value as string))
+const isPartner = computed(() => role.value === 'bengkel_partner' || role.value === 'admin')
 function goSearch() {
   const q = headerSearch.value.trim()
   if (!q) return
@@ -44,6 +47,8 @@ onMounted(() => auth.fetchMe())
           <span class="absolute -top-2 -right-2 bg-[#ff5722] text-white border-2 border-black text-[10px] font-bold px-1.5 py-0.5 leading-none">{{ cartCount }}</span>
         </NuxtLink>
         <NuxtLink to="/pesanan" class="hidden sm:inline-flex border-2 border-black bg-white px-3 py-2 text-label-sm">Pesanan</NuxtLink>
+        <NuxtLink v-if="isPartner" to="/mitra/dashboard" class="hidden sm:inline-flex border-2 border-black bg-emerald-600 text-white px-3 py-2 text-label-sm">Mitra</NuxtLink>
+        <NuxtLink v-if="isStaff" to="/admin" class="hidden sm:inline-flex border-2 border-black bg-black text-white px-3 py-2 text-label-sm">Admin</NuxtLink>
         <NuxtLink v-if="auth.user.value" to="/dashboard" class="hidden sm:inline-flex border-[3px] border-black bg-black text-white px-3 py-2 text-label-sm">{{ auth.user.value.name.split(' ')[0] }}</NuxtLink>
         <NuxtLink v-else to="/auth/login" class="hidden sm:inline-flex border-[3px] border-black bg-white px-3 py-2 text-label-sm">Masuk</NuxtLink>
         <NuxtLink v-if="!auth.user.value" to="/auth/register" class="hidden sm:inline-flex border-2 border-black bg-[#ff5722] text-white px-3 py-2 text-label-sm">Daftar</NuxtLink>
@@ -59,6 +64,8 @@ onMounted(() => auth.fetchMe())
       <NuxtLink to="/layanan-bengkel" class="border-2 border-black px-3 py-2 text-label-md">Layanan Bengkel</NuxtLink>
       <NuxtLink to="/lokasi" class="border-2 border-black px-3 py-2 text-label-md">Lokasi</NuxtLink>
       <NuxtLink to="/pesanan" class="border-2 border-black px-3 py-2 text-label-md">Pesanan Saya</NuxtLink>
+      <NuxtLink v-if="isPartner" to="/mitra/dashboard" class="border-2 border-black px-3 py-2 text-label-md bg-emerald-50">Mitra Bengkel</NuxtLink>
+      <NuxtLink v-if="isStaff" to="/admin" class="border-2 border-black bg-black text-white px-3 py-2 text-label-md">Admin Panel</NuxtLink>
       <template v-if="auth.user.value">
         <NuxtLink to="/dashboard" class="border-2 border-black bg-black text-white px-3 py-2 text-label-md">Dashboard — {{ auth.user.value.name }}</NuxtLink>
         <button class="border-2 border-black px-3 py-2 text-label-md text-left" @click="auth.signOut()">Keluar</button>

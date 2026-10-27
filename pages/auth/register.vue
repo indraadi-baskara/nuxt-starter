@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'default', middleware: 'guest' })
 useHead({ title: 'Daftar — Vems Garage' })
 const auth = useAuth()
 const form = reactive({ name: '', email: '', password: '' })

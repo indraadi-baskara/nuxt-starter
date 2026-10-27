@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'default', middleware: 'guest' })
 useHead({ title: 'Masuk — Vems Garage' })
 const auth = useAuth()
 const form = reactive({ email: '', password: '' })
@@ -9,7 +9,7 @@ async function submit() {
   err.value = null
   if (!form.email || !form.password) { err.value = 'Isi email & password.'; return }
   pending.value = true
-  try { await auth.signIn({ email: form.email, password: form.password }); navigateTo('/dashboard') } catch (e: any) { err.value = e?.data?.message || e?.message || 'Gagal masuk.' } finally { pending.value = false }
+  try { await auth.signIn({ email: form.email, password: form.password }); const q = useRoute().query as any; navigateTo(q.redirect ? String(q.redirect) : '/dashboard') } catch (e: any) { err.value = e?.data?.message || e?.message || 'Gagal masuk.' } finally { pending.value = false }
 }
 </script>
 <template>

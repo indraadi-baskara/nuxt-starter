@@ -8,7 +8,8 @@ export function useAuth() {
   async function fetchMe() {
     loading.value = true
     try {
-      const res = await $fetch<{ user: AuthUser }>('/api/me', { credentials: 'include' } as any).catch(() => null)
+      const headers: Record<string, string> = { ...(import.meta.server ? (useRequestHeaders(['cookie']) as any) : {}) }
+      const res = await $fetch<{ user: AuthUser }>('/api/me', { headers, credentials: 'include' } as any).catch(() => null)
       user.value = (res as any)?.user ?? null
       initialized.value = true
       return user.value

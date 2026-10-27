@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" })
+definePageMeta({ layout: "account", middleware: "auth" })
 const route = useRoute()
 const order = ref<any>(null)
 const err = ref<string | null>(null)
