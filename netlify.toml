@@ -1,5 +1,5 @@
 [build]
-  command = "(pnpm db:migrate 2>&1 | sed -n '1,200p') || echo \"[migrate] build-time migrate failed — runtime guard will retry\"; pnpm build"
+  command = "pnpm --silent db:migrate || echo \"[migrate] build-time migrate failed — runtime guard will retry\"; pnpm build"
   publish = "dist"
 
 [build.environment]
