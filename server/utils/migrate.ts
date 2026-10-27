@@ -50,10 +50,26 @@ export async function ensureMigrated(): Promise<void> {
         console.log("[migrate] bengkel_pricing missing — running 0001");
         try {
           const sql1 = await loadSql("0001_daffy_quasimodo.sql");
-          // only run CREATE + FK + indexes for bengkel_pricing, skip ALTER noise idempotently
           await runChunks(sql1);
         } catch (e: any) { console.warn("[migrate] 0001 warn:", e.message?.slice(0,200)) }
       }
+      // seed B2B pricing if empty
+      try {
+        const cnt = await sql_client`SELECT count(*)::int as n FROM bengkel_pricing` as any[];
+        if (!cnt[0]?.n) {
+          console.log("[migrate] seeding B2B pricing tiers");
+          const prods = await sql_client`SELECT sku, price FROM product` as any[];
+          for (const p of prods) {
+            const base = Number(p.price);
+            const tiers: Array<[string, number]> = [["tier-1", 0.08], ["tier-2", 0.12], ["tier-3", 0.18]];
+            for (const [tier, disc] of tiers) {
+              const b2b = Math.round(base * (1 - disc));
+              const id = `bp_${p.sku}_${tier}`;
+              await sql_client`INSERT INTO bengkel_pricing (id, sku, tier, price) VALUES (${id}, ${p.sku}, ${tier}, ${b2b}) ON CONFLICT (id) DO NOTHING`;
+            }
+          }
+        }
+      } catch (e: any) { console.warn("[migrate] seed B2B warn:", e.message?.slice(0,200)) }
       migrated = true;
     } catch (e: any) {
       console.error("[migrate] failed:", e.message?.slice(0, 500));
